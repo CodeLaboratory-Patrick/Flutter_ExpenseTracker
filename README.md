@@ -4961,7 +4961,138 @@ Theming your buttons using `ElevatedButtonThemeData` helps achieve a consistent 
 3. [ButtonStyle and ElevatedButton.styleFrom()](https://api.flutter.dev/flutter/material/ElevatedButton/styleFrom.html)
 
 ---
-## ⭐️ 
+## ⭐️ Flutter Guide: Understanding ThemeData, FontWeight, onSecondaryContainer, copyWith, and Code Analysis
+
+This guide takes an in-depth look at how theming works in Flutter by analyzing `ThemeData`, `FontWeight`, `onSecondaryContainer`, and the `copyWith` method. We'll cover the characteristics of each and how they work together to create a cohesive and visually appealing design. The provided code example will be used to demonstrate how these components work in practice.
+
+## 1. ThemeData
+
+### Overview
+`ThemeData` is a foundational class in Flutter that defines the overall visual theme of an application. It allows you to control colors, text styles, icon themes, button themes, and other visual attributes in a centralized way.
+
+### Characteristics
+- **Global Styling**: When `ThemeData` is applied to `MaterialApp`, it sets the theme for all widgets within the app, helping maintain consistency.
+- **Customizable**: It includes a wide range of parameters like `primaryColor`, `textTheme`, `colorScheme`, etc., which allow for fine-grained control over the look and feel of an app.
+- **Material Design Integration**: `ThemeData` adheres to Material Design principles, which ensures a professional, consistent, and modern UI.
+
+### Example
+```dart
+MaterialApp(
+  theme: ThemeData(
+    primaryColor: Colors.blue,
+    accentColor: Colors.orange,
+    textTheme: TextTheme(
+      headline6: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+    ),
+  ),
+  home: HomeScreen(),
+);
+```
+In this example, `ThemeData` is used to set the primary color, accent color, and a custom `textTheme` for the app. By setting these globally, all widgets in the app will inherit these properties unless explicitly overridden.
+
+## 2. FontWeight
+
+### Overview
+`FontWeight` is an enumeration that specifies the thickness of the font. It ranges from very light (`FontWeight.w100`) to very bold (`FontWeight.w900`). In Material Design, different `FontWeight` values are used to convey a sense of visual hierarchy or emphasis.
+
+### Characteristics
+- **Hierarchy Representation**: Used to distinguish between headings, subheadings, and body text by varying the font thickness.
+- **Scalable**: Offers a range of predefined weights, including `w100`, `w300`, `w400` (normal), `w500`, and up to `w900` (bold).
+- **Readability**: Proper use of `FontWeight` ensures better readability and a visually structured layout.
+
+### Example
+```dart
+Text(
+  'Hello Flutter',
+  style: TextStyle(
+    fontWeight: FontWeight.bold,
+  ),
+);
+```
+In this example, the `Text` widget uses `FontWeight.bold` to emphasize the text, making it stand out from regular text.
+
+## 3. onSecondaryContainer
+
+### Overview
+`onSecondaryContainer` is part of the `ColorScheme` class in Flutter, which provides a set of color definitions for your app. The `onSecondaryContainer` color is specifically used for content (like text or icons) that sits on top of a background colored with `secondaryContainer`. This ensures proper contrast, enhancing readability.
+
+### Characteristics
+- **Contrast**: Ensures that the content color contrasts well with the `secondaryContainer` background.
+- **Thematic Consistency**: By using `onSecondaryContainer`, you maintain consistency and visual harmony across your application.
+- **Material Design Guidance**: Follows Material Design principles to provide optimal color pairings.
+
+### Example
+```dart
+AppBar(
+  backgroundColor: kColourScheme.secondaryContainer,
+  title: Text(
+    'App Bar Title',
+    style: TextStyle(
+      color: kColourScheme.onSecondaryContainer,
+    ),
+  ),
+);
+```
+In this example, the `AppBar` uses `secondaryContainer` for the background and `onSecondaryContainer` for the text color, ensuring proper contrast for readability.
+
+## 4. copyWith Method
+
+### Overview
+The `copyWith()` method is used to create a modified copy of an existing object, typically used with theme classes like `ThemeData` or `TextStyle`. This method allows you to alter specific properties while keeping all other properties intact.
+
+### Characteristics
+- **Targeted Modification**: Modify only the specific attributes you need without affecting the rest of the object.
+- **Efficiency**: Avoids redundancy by making minor modifications to an existing theme or style instead of defining a new one entirely.
+- **Reusability**: Makes themes and styles reusable by tweaking only necessary attributes.
+
+### Example
+```dart
+ThemeData baseTheme = ThemeData(primaryColor: Colors.blue);
+ThemeData updatedTheme = baseTheme.copyWith(
+  primaryColor: Colors.green,
+);
+```
+In this example, `copyWith()` is used to change the `primaryColor` from blue to green without altering other properties defined in `baseTheme`.
+
+## Code Analysis of Provided Code
+The provided code snippet applies theming to the `textTheme` in Flutter:
+
+```dart
+textTheme: ThemeData().textTheme.copyWith(
+  titleLarge: TextStyle(
+    fontWeight: FontWeight.normal,
+    color: kColourScheme.onSecondaryContainer,
+    fontSize: 14,
+  ),
+),
+```
+### Breakdown
+- **`ThemeData().textTheme`**: Retrieves the default `textTheme` from the default `ThemeData`. This default `textTheme` contains predefined text styles that can be customized.
+- **`copyWith()`**: This method is used to modify specific properties of the default `textTheme`. In this case, the `titleLarge` property is modified.
+- **`titleLarge`**: This text style is customized to have:
+  - `fontWeight: FontWeight.normal`: Sets the text to normal weight (not bold).
+  - `color: kColourScheme.onSecondaryContainer`: Uses `onSecondaryContainer` from `kColourScheme` to ensure contrast.
+  - `fontSize: 14`: Sets the font size to 14.
+
+This approach makes the `titleLarge` text style consistent throughout the application, ensuring that titles maintain a uniform size, weight, and color based on the global theme settings.
+
+## Summary Table
+| Component             | Description                                   | Characteristics                        | Example Use Case                        |
+|-----------------------|-----------------------------------------------|----------------------------------------|-----------------------------------------|
+| `ThemeData`           | Defines the overall theme of an app.         | Global Styling, Material Integration   | Set primary colors, text styles, etc.   |
+| `FontWeight`          | Controls the thickness of text.              | Hierarchy, Readability                 | Differentiate headings from body text.  |
+| `onSecondaryContainer`| Color used on `secondaryContainer` surfaces. | Contrast, Thematic Consistency         | Text color for items on secondary backgrounds. |
+| `copyWith()`          | Creates modified copies of an object.        | Efficiency, Reusability                | Modify specific text styles or themes.  |
+
+## Conclusion
+Using `ThemeData`, `FontWeight`, `onSecondaryContainer`, and `copyWith()` helps ensure a consistent and visually appealing UI for Flutter applications. By centralizing and reusing themes, developers can save time, reduce redundancy, and make the app more maintainable.
+
+## References and Useful Links
+1. [Flutter Documentation - ThemeData](https://api.flutter.dev/flutter/material/ThemeData-class.html)
+2. [Flutter Documentation - FontWeight](https://api.flutter.dev/flutter/dart-ui/FontWeight-class.html)
+3. [Flutter Documentation - ColorScheme](https://api.flutter.dev/flutter/material/ColorScheme-class.html)
+4. [Flutter Theming and Styling Guide](https://flutter.dev/docs/cookbook/design/themes)
+5. [copyWith Method in Flutter](https://api.flutter.dev/flutter/material/TextTheme/copyWith.html)
 
 ---
 ## ⭐️ 
