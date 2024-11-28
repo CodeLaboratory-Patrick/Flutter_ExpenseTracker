@@ -5941,7 +5941,273 @@ class ExpenseChart extends StatelessWidget {
 4. [Flutter Theming Overview](https://flutter.dev/docs/cookbook/design/themes)
 
 ---
-## ⭐️ 
+## ⭐️ Flutter Guide: Analyzing the `Chart` Widget Code
+## Code Overview
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:expense_tracker/widgets/chart/chart_bar.dart';
+import 'package:expense_tracker/models/expense.dart';
+
+class Chart extends StatelessWidget {
+  const Chart({super.key, required this.expenses});
+
+  final List<Expense> expenses;
+
+  List<ExpenseBucket> get buckets {
+    return [
+      ExpenseBucket.forCategory(expenses, Category.food),
+      ExpenseBucket.forCategory(expenses, Category.leisure),
+      ExpenseBucket.forCategory(expenses, Category.travel),
+      ExpenseBucket.forCategory(expenses, Category.work),
+    ];
+  }
+
+  double get maxTotalExpense {
+    double maxTotalExpense = 0;
+
+    for (final bucket in buckets) {
+      if (bucket.totalExpenses > maxTotalExpense) {
+        maxTotalExpense = bucket.totalExpenses;
+      }
+    }
+
+    return maxTotalExpense;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDarkMode =
+        MediaQuery.of(context).platformBrightness == Brightness.dark;
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(
+        vertical: 16,
+        horizontal: 8,
+      ),
+      width: double.infinity,
+      height: 180,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            Theme.of(context).colorScheme.primary.withOpacity(0.0)
+          ],
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+        ),
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (final bucket in buckets) // alternative to map()
+                  ChartBar(
+                    fill: bucket.totalExpenses == 0
+                        ? 0
+                        : bucket.totalExpenses / maxTotalExpense,
+                  )
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: buckets
+                .map(
+                  (bucket) => Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Icon(
+                        categoryIcons[bucket.category],
+                        color: isDarkMode
+                            ? Theme.of(context).colorScheme.secondary
+                            : Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.7),
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+          )
+        ],
+      ),
+    );
+  }
+}
+```
+
+## Detailed Analysis
+### 1. Imports
+```dart
+import 'package:flutter/material.dart';
+import 'package:expense_tracker/widgets/chart/chart_bar.dart';
+import 'package:expense_tracker/models/expense.dart';
+```
+- **Flutter Material Library**: Provides the necessary UI components to build the chart.
+- **ChartBar Import**: Imports a custom widget (`ChartBar`), which likely represents each bar in the chart.
+- **Expense Model Import**: Imports the `Expense` model, which defines the structure of each expense entry.
+
+### 2. Class Definition: `Chart`
+```dart
+class Chart extends StatelessWidget {
+  const Chart({super.key, required this.expenses});
+
+  final List<Expense> expenses;
+```
+- **`Chart` Class**: A stateless widget that visualizes expenses in a bar chart format.
+- **`expenses` Property**: A list of `Expense` objects, which is required to populate the chart data.
+
+### 3. Calculating Expense Buckets
+```dart
+List<ExpenseBucket> get buckets {
+  return [
+    ExpenseBucket.forCategory(expenses, Category.food),
+    ExpenseBucket.forCategory(expenses, Category.leisure),
+    ExpenseBucket.forCategory(expenses, Category.travel),
+    ExpenseBucket.forCategory(expenses, Category.work),
+  ];
+}
+```
+- **`buckets` Getter**: Groups the expenses by category, using an `ExpenseBucket` class to create separate categories (e.g., food, leisure, travel, work).
+- **Named Constructor (`forCategory`)**: This constructor filters the expenses for each specific category, creating different buckets to visualize expenses by type.
+
+### 4. Finding Maximum Total Expense
+```dart
+double get maxTotalExpense {
+  double maxTotalExpense = 0;
+
+  for (final bucket in buckets) {
+    if (bucket.totalExpenses > maxTotalExpense) {
+      maxTotalExpense = bucket.totalExpenses;
+    }
+  }
+
+  return maxTotalExpense;
+}
+```
+- **`maxTotalExpense` Getter**: Computes the highest value among all expense categories. This is used to scale the height of the chart bars, ensuring they are proportional to the highest expense.
+- **Loop Through Buckets**: Iterates through each bucket to find the maximum expense value.
+
+### 5. Building the Widget
+```dart
+@override
+Widget build(BuildContext context) {
+  final isDarkMode =
+      MediaQuery.of(context).platformBrightness == Brightness.dark;
+```
+- **Dark Mode Check**: Uses `MediaQuery` to check whether the system is in dark mode. This affects the color scheme of the chart.
+
+### 6. Container Styling and Layout
+```dart
+return Container(
+  margin: const EdgeInsets.all(16),
+  padding: const EdgeInsets.symmetric(
+    vertical: 16,
+    horizontal: 8,
+  ),
+  width: double.infinity,
+  height: 180,
+  decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(8),
+    gradient: LinearGradient(
+      colors: [
+        Theme.of(context).colorScheme.primary.withOpacity(0.3),
+        Theme.of(context).colorScheme.primary.withOpacity(0.0)
+      ],
+      begin: Alignment.bottomCenter,
+      end: Alignment.topCenter,
+    ),
+  ),
+```
+- **Container Styling**: Uses a `Container` widget to provide a gradient background with rounded corners.
+- **Gradient Decoration**: The `LinearGradient` gives a subtle visual effect from the bottom to the top, enhancing the appearance of the chart.
+
+### 7. Chart Bar Representation
+```dart
+child: Column(
+  children: [
+    Expanded(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          for (final bucket in buckets)
+            ChartBar(
+              fill: bucket.totalExpenses == 0
+                  ? 0
+                  : bucket.totalExpenses / maxTotalExpense,
+            )
+        ],
+      ),
+    ),
+```
+- **`Row` Widget for Bars**: Uses a `Row` to represent the different expense categories as bars. Each bar is created using the `ChartBar` widget.
+- **Scaling Bar Heights**: The `fill` property of `ChartBar` is calculated by dividing `totalExpenses` by `maxTotalExpense`, which ensures that the heights are relative and proportional.
+
+### 8. Displaying Icons for Categories
+```dart
+const SizedBox(height: 12),
+Row(
+  children: buckets
+      .map(
+        (bucket) => Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Icon(
+              categoryIcons[bucket.category],
+              color: isDarkMode
+                  ? Theme.of(context).colorScheme.secondary
+                  : Theme.of(context).colorScheme.primary.withOpacity(0.7),
+            ),
+          ),
+        ),
+      )
+      .toList(),
+)
+```
+- **Icons for Categories**: The icons at the bottom of the chart represent different expense categories.
+- **Color Based on Theme**: The icon color changes depending on whether the app is in dark or light mode, enhancing visual clarity and theme adaptation.
+
+## Practical Usage Example
+This `Chart` widget is designed to display expense data, with each bar representing a different category. Below is an example of how to use it in an expense tracking application:
+
+```dart
+class ExpenseOverview extends StatelessWidget {
+  final List<Expense> allExpenses;
+
+  ExpenseOverview({required this.allExpenses});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Expense Overview'),
+      ),
+      body: Column(
+        children: [
+          Chart(expenses: allExpenses),
+          // Additional widgets for detailed expense breakdown
+        ],
+      ),
+    );
+  }
+}
+```
+### Explanation
+- **Integration**: The `Chart` widget is integrated into the `ExpenseOverview` screen, displaying a summary of expenses grouped by category.
+- **Dynamic Data**: The `expenses` parameter can be dynamically passed in based on user input or database records.
+
+## Summary Table of Concepts
+| Concept                  | Description                                      | Characteristics                        | Example Use Case                          |
+|--------------------------|--------------------------------------------------|----------------------------------------|-------------------------------------------|
+| **`StatelessWidget`**    | A widget that doesn’t require mutable state.     | Simple, Efficient                      | Use for static UI components              |
+| **Expense Buckets**      | Groups expenses by category.                    | Flexible Grouping, Customizable        | Visualize data based on expense types     |
+| **`Expanded` Widget**    | Allocates available space to child widgets.     | Flexibility, Equal Space Allocation    | Creating dynamic layouts                 |
+| **Dark Mode Adaptation** | Adjusts UI based on platform brightness.        | Improves User Experience, Consistent   | Theme color adjustments in UI elements    |
 
 ---
 ## ⭐️ 
